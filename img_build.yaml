@@ -34,14 +34,14 @@
   gather_facts: no
   become: yes
   tasks:
-  - set_fact:
-      remote_user: fedora
   - raw: dnf -y install python2 python2-libselinux
 
 - hosts: amzn2img:&{{ target }}
   become: yes
   name: Customize the environment
   tasks:
+  - set_fact:
+      remote_user: ec2-user
   - name: Sudo nopasswd for wheel
     lineinfile: "dest=/etc/sudoers state=present regexp='^%wheel' line='%wheel ALL=(ALL) NOPASSWD: ALL'"
   - name: Install EPEL 7 repository
@@ -91,6 +91,8 @@
   become: yes
   name: Customize the environment
   tasks:
+  - set_fact:
+      remote_user: fedora
   - name: Sudo nopasswd for wheel
     lineinfile: "dest=/etc/sudoers state=present regexp='^%wheel' line='%wheel ALL=(ALL) NOPASSWD: ALL'"
   - name: Install extra packages
@@ -124,14 +126,48 @@
       name: "*"
       state: latest
 
-- hosts: "{{ target }}"
+- hosts: u16img:&{{ target }}
   become: yes
-  name: Configure standard build user
+  name: Customize the environment
   tasks:
-  - copy:
-      src: files/{{ inventory_hostname }}/cloud.cfg
-      dest: /etc/cloud/cloud.cfg
-      mode: 0644
+  - set_fact:
+      remote_user: ubuntu
+  - name: Create wheel group
+    group:
+      name: wheel
+      system: yes
+  - name: Sudo nopasswd for wheel
+    lineinfile: "dest=/etc/sudoers state=present regexp='^%wheel' line='%wheel ALL=(ALL) NOPASSWD: ALL'"
+  - name: Install extra packages
+    apt:
+      name: "{{ item }}"
+      state: latest
+      update_cache: yes
+    with_items:
+    - jq
+    - python2.7
+    - python-pip
+    - nodejs
+    - ruby
+    - libncurses5-dev
+    - tmux
+    - unzip
+    - aptitude
+  - name: Install python modules
+    pip:
+      name: "{{ item.name }}"
+      version: "{{ item.version }}"
+      state: present
+    with_items:
+    - { name: 'ansible', version: '2.6.1' }
+    - { name: 'boto', version: '2.48.0' }
+    - { name: 'boto3', version: '1.7.62' }
+    - { name: 'dnspython', version: '1.15.0' }
+    - { name: 'awscli', version: '1.15.68' }
+  - name: Update all packages
+    apt:
+      name: "*"
+      state: latest
 
 - hosts: "{{ target }}"
   name: Set up ruby-awstools and Go
@@ -139,3 +175,19 @@
   roles:
   - ruby-awstools
   - golang
+
+- hosts: "{{ target }}"
+  become: yes
+  name: Configure standard build user and remove dist user
+  tasks:
+  - copy:
+      src: files/{{ inventory_hostname }}/cloud.cfg
+      dest: /etc/cloud/cloud.cfg
+      mode: 0644
+  - file:
+      path: /home/{{ remote_user }}/.ssh/authorized_keys
+      state: absent
+  - user:
+      name: "{{ remote_user }}"
+      state: absent
+      force: yes
