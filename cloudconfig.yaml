@@ -1,0 +1,8 @@
+---
+# cloudconfig.yaml - central config file for ruby-awstools library
+
+# Where to search for common definitions
+SearchPath:
+# Base LinuxJedi core infrastructure off of the Reference Architecture
+- ../linuxjedi-private
+- ../aws-linuxjedi

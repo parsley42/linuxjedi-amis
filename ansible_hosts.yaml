@@ -1,0 +1,6 @@
+all: # keys must be unique, i.e. only one 'hosts' per group
+    hosts:
+        f28img:
+            ansible_host: f28img.linuxjedi.org
+        amzn2img:
+            ansible_host: amzn2img.linuxjedi.org
