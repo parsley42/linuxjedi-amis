@@ -109,7 +109,10 @@
     - glibc-static
     - ncurses-devel
     - tmux
+    - policycoreutils-python-utils
     - unzip
+  - name: Set file context for build user
+    command: semanage fcontext -a -e /root /build
   - name: Install python modules
     pip:
       name: "{{ item.name }}"
