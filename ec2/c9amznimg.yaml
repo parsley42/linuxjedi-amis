@@ -1,8 +1,9 @@
 ---
+# c9amznimg.yaml - image based on the Amazon Linux Cloud 9 Kitchen Sink AMI
 tags:
   Platform: AmazonLinux
 api_template:
-  image_id: ${@ami|${/ami/amzn2}}
+  image_id: ${@ami|${/ami/c9amzn}}
   user_data: |
     #!/bin/bash
     yum -y update

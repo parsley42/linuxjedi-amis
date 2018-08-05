@@ -36,6 +36,44 @@
   tasks:
   - raw: dnf -y install python2 python2-libselinux
 
+- hosts: c9amznimg:&{{ target }}
+  become: yes
+  name: Customize the environment
+  tasks:
+  - set_fact:
+      remote_user: ec2-user
+  - name: Sudo nopasswd for wheel
+    lineinfile: "dest=/etc/sudoers state=present regexp='^%wheel' line='%wheel ALL=(ALL) NOPASSWD: ALL'"
+  - name: Remove old ruby
+    command: yum remove -y ruby
+  - name: Remove ruby environment
+    file:
+      path: /usr/local/rvm/rubies/
+      state: absent
+  - name: Install extra packages
+    yum:
+      name: "{{ item }}"
+      state: latest
+    with_items:
+    - jq
+    - ruby24
+    - rubygems24
+    - rubygem24-rdoc
+  - name: Install python modules
+    pip:
+      name: "{{ item.name }}"
+      version: "{{ item.version }}"
+      state: present
+    with_items:
+    - { name: 'ansible', version: '2.6.1' }
+    - { name: 'boto', version: '2.48.0' }
+    - { name: 'boto3', version: '1.7.62' }
+    - { name: 'dnspython', version: '1.15.0' }
+  - name: Update all packages
+    yum:
+      name: "*"
+      state: latest
+
 - hosts: amzn2img:&{{ target }}
   become: yes
   name: Customize the environment
