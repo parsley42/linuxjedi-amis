@@ -57,12 +57,17 @@
     file:
       path: /usr/local/rvm/rubies/
       state: absent
+  - name: Remove stock Go
+    file:
+      path: /usr/local/go
+      state: absent
   - name: Install extra packages
     yum:
       name: "{{ item }}"
       state: latest
     with_items:
     - jq
+    - glibc-static
     - ruby24
     - rubygems24
     - rubygem24-rdoc
