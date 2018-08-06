@@ -52,7 +52,7 @@
   - name: Sudo nopasswd for wheel
     lineinfile: "dest=/etc/sudoers state=present regexp='^%wheel' line='%wheel ALL=(ALL) NOPASSWD: ALL'"
   - name: Remove old ruby
-    command: yum remove -y ruby
+    command: yum remove -y ruby20
   - name: Remove ruby environment
     file:
       path: /usr/local/rvm/rubies/
@@ -69,6 +69,7 @@
     - jq
     - glibc-static
     - ruby24
+    - ruby24-devel
     - rubygems24
     - rubygem24-rdoc
   - name: Install python modules
