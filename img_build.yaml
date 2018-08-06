@@ -36,6 +36,13 @@
   tasks:
   - raw: dnf -y install python2 python2-libselinux
 
+- hosts: u16img:&{{ target }}
+  name: Initialize Ubuntu
+  gather_facts: no
+  become: yes
+  tasks:
+  - raw: apt-get -y install python-minimal
+
 - hosts: c9amznimg:&{{ target }}
   become: yes
   name: Customize the environment
@@ -186,7 +193,6 @@
       update_cache: yes
     with_items:
     - jq
-    - python2.7
     - python-pip
     - nodejs
     - ruby
@@ -222,8 +228,8 @@
   name: Configure standard build user and remove dist user
   tasks:
   - copy:
-      src: files/{{ inventory_hostname }}/cloud.cfg
-      dest: /etc/cloud/cloud.cfg
+      src: files/{{ inventory_hostname }}/42_ljbuild.cfg
+      dest: /etc/cloud/cloud.cfg.d/42_ljbuild.cfg
       mode: 0644
   - file:
       path: /home/{{ remote_user }}/.ssh/authorized_keys

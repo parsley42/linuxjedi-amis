@@ -6,6 +6,9 @@ all: # keys must be unique, i.e. only one 'hosts' per group
     amzn2img:
       ansible_host: amzn2img.linuxjedi.org
       ansible_user: ec2-user
+    c9amznimg:
+      ansible_host: c9amznimg.linuxjedi.org
+      ansible_user: ec2-user
     u16img:
       ansible_host: u16img.linuxjedi.org
       ansible_user: ubuntu
